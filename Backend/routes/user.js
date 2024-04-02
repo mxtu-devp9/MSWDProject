@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
+const User = require('../model/user');
 
 
-router.post('/users', async (req, res) => {
+router.post('/signup', async (req, res) => {
     try {
         const user = new User({
             username: req.body.username,

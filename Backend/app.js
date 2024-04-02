@@ -21,7 +21,7 @@ app.get('/', () => {
     res.send('I am root');
 })
 
-app.use('/users', userRouter);
+app.use('/user', userRouter);
 app.use('/funds', fundRouter);
 
 app.listen(PORT, () => {

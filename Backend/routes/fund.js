@@ -1,14 +1,16 @@
 const express = require('express');
 const router = express.Router();
+const Fund = require('../model/fund');
+const User = require('../model/user');
 
 
-router.get('/funds', async (req, res) => {
+router.get('/', async (req, res) => {
     const funds = await Fund.find();
     res.json(funds);
 })
 
 
-router.post('/funds/:id', async (req, res) => {
+router.post('/:id', async (req, res) => {
     try {
         id = req.params.id;
         if (!User.findById(id)) {
@@ -31,12 +33,12 @@ router.post('/funds/:id', async (req, res) => {
     }
 });
 
-router.get('/funds/:id', (req, res) => {
+router.get('/:id', (req, res) => {
     const fund = Fund.findById(req.params.id);
     res.json(fund);
 })
 
-router.put('/funds/:id', async (req,res) => {
+router.put('/:id', async (req,res) => {
     try {
         const fund = await Fund.findById(req.params.id);
         fund.fund_name = req.body.fund_name;
@@ -55,7 +57,7 @@ router.put('/funds/:id', async (req,res) => {
     }
 })
 
-router.delete('/funds/:id', async (req, res) => {
+router.delete('/:id', async (req, res) => {
     try {
         const fund = await Fund.findByIdAndDelete(req.params.id);
         res.json(fund);
