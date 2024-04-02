@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Fund = require('../model/fund');
 const User = require('../model/user');
+const { isLoggedIn,isCreator } = require('../middleware');
 
 
 router.get('/', async (req, res) => {
@@ -10,10 +11,11 @@ router.get('/', async (req, res) => {
 })
 
 
-router.post('/:id', async (req, res) => {
+router.post('/:id', isLoggedIn, async (req, res) => {
     try {
-        id = req.params.id;
-        if (!User.findById(id)) {
+        const currUser = req.user;
+        const id = currUser._id;
+        if (!currUser) {
             res.send("User not found");
         }
         const fund = new Fund({
@@ -26,8 +28,7 @@ router.post('/:id', async (req, res) => {
             fund_category: req.body.fund_category,
         });
         await fund.save()
-        res.json(fund)
-        // res.send("fund created successfuly")
+        res.send("fund created successfuly")
     } catch (err) {
         console.log(err);
     }
@@ -38,7 +39,7 @@ router.get('/:id', (req, res) => {
     res.json(fund);
 })
 
-router.put('/:id', async (req,res) => {
+router.put('/:id', isLoggedIn,isCreator, async (req, res) => {
     try {
         const fund = await Fund.findById(req.params.id);
         fund.fund_name = req.body.fund_name;
@@ -51,16 +52,16 @@ router.put('/:id', async (req,res) => {
         fund.fund_category = req.body.fund_category;
         fund.fund_image = req.body.fund_image;
         await fund.save();
-        res.json(fund);
+        res.send("fund updated successfully");
     } catch (err) {
         console.log(err);
     }
 })
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id',isLoggedIn,isCreator, async (req, res) => {
     try {
-        const fund = await Fund.findByIdAndDelete(req.params.id);
-        res.json(fund);
+        await Fund.findByIdAndDelete(req.params.id);
+        res.send("fund deleted successfully");
     } catch (err) {
         console.log(err);
     }

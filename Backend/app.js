@@ -3,8 +3,9 @@ const mongoose = require("mongoose")
 const bodyParser = require("body-parser")
 const app = express()
 const User = require('./model/user')
-const Fund = require('./model/fund')
-const Transaction = require('./model/transaction')
+const session = require('express-session')
+const passport = require('passport')
+const localStrategy = require('passport-local')
 const userRouter = require('./routes/user')
 const fundRouter = require('./routes/fund')
 
@@ -15,10 +16,36 @@ app.use(bodyParser.urlencoded({ extended: false }))
 
 const PORT = process.env.PORT;
 
+const sessionOptions = {
+    secret: "supersecret",
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+        httpOnly: true,
+        expires: Date.now() + 1000 * 60 * 60 * 24 * 3,
+        maxAge: 1000 * 60 * 60 * 24 * 3,
+    }
+}
+
+app.use(session(sessionOptions));
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+passport.use(new localStrategy(User.authenticate()))
+
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
 connectToDB();
 
 app.get('/', () => {
     res.send('I am root');
+})
+
+app.use((req, res, next) => {
+    res.locals.currUser = req.user;
+    next();
 })
 
 app.use('/user', userRouter);
